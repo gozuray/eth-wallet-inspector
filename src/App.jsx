@@ -1,7 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useBalance } from "wagmi";
-import React from 'react'
-
+import React from "react";
+import "./App.css";
 
 function App() {
   const { address, isConnected, chain } = useAccount();
@@ -15,79 +15,73 @@ function App() {
     },
   });
 
-  const [priceUsd, setPriceUsd] = React.useState(null)
+  const [priceUsd, setPriceUsd] = React.useState(null);
+  const [copied, setCopied] = React.useState(false);
 
-React.useEffect(() => {
-  fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd")
-    .then(res => res.json())
-    .then(data => setPriceUsd(data.ethereum.usd))
-}, [])
+  React.useEffect(() => {
+    setPriceUsd(3035.2); // dummy price
+  }, []);
 
+  const shortAddress = address
+    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    : "";
 
   return (
     <div className="app">
       <div className="card">
-        <div className="title">ETH WALLET INSPECTOR</div>
-        <div className="subtitle">Ethereum Account Overview</div>
 
-        <ConnectButton />
+        <h1 className="title">ETH WALLET INSPECTOR</h1>
+        <p className="subtitle">Ethereum Account Overview</p>
 
+        <div className="badge">TESTNET MODE · SEPOLIA</div>
+
+        {/* WALLET */}
+        <div className="wallet-row">
+          <ConnectButton showBalance={false} />
+        </div>
+
+        {/* BALANCE */}
         {isConnected && (
-          <>
-           <div className="balance">
-  <span>Balance</span>
-  <strong>
-    {balance?.formatted || '0.00'} {balance?.symbol}
-  </strong>
+          <div className="balance">
+            <div className="balance-content">
+              <span>Balance</span>
+              <strong>
+                {balance?.formatted || "0.00"} {balance?.symbol}
+              </strong>
 
-  {balance && priceUsd && (
-    <div style={{ fontSize: "0.85rem", marginTop: 6 }}>
-      ≈ $
-      {(parseFloat(balance.formatted) * priceUsd).toLocaleString(undefined, {
-        maximumFractionDigits: 2,
-      })}{" "}
-      USD
-    </div>
-  )}
-</div>
-
-
-            <div className="info">
-              <div>
-                <strong>NETWORK:</strong> {chain?.name || "Unknown"}
-              </div>
-
-              <div
-  style={{
-    marginTop: 8,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center"
-  }}
->
-  <div>
-    <strong>ADDRESS:</strong>{" "}
-    {address.slice(0, 6)}...{address.slice(-4)}
-  </div>
-
-  <button
-    style={{
-      padding: "4px 10px",
-      fontSize: "0.7rem",
-      cursor: "pointer",
-      borderRadius: "6px"
-    }}
-    onClick={() => navigator.clipboard.writeText(address)}
-  >
-    Copy
-  </button>
-</div>
-
+              {balance && priceUsd && (
+                <div style={{ fontSize: "0.85rem", marginTop: 6 }}>
+                  ≈ $
+                  {(parseFloat(balance.formatted) * priceUsd).toLocaleString(
+                    undefined,
+                    { maximumFractionDigits: 2 }
+                  )}{" "}
+                  USD
+                </div>
+              )}
             </div>
-          </>
+
+            {/* COPY CHIP */}
+            {address && (
+              <button
+                className={`copy-chip ${copied ? "copied" : ""}`}
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                }}
+              >
+                <span className="copy-icon">📋</span>
+                <span className="copy-text">
+                  {copied ? "Copied!" : shortAddress}
+                </span>
+              </button>
+            )}
+          </div>
         )}
 
-        <div className="foot">Web3 Dashboard · Powered by Ethereum</div>
+        <footer className="foot">Web3 Dashboard · Powered by Ethereum</footer>
+
       </div>
     </div>
   );

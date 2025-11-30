@@ -36,6 +36,8 @@ A Web3 dashboard built with React that allows users to connect their wallet and 
 npm install
 npm run dev
 
+---
+
 ## ⚠️ Disclaimer
 
 This project is for educational purposes only.  
